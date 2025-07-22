@@ -73,6 +73,22 @@
 
           link.target = "_blank";
           li.insertBefore(link, li.firstChild);
+          // Fetch tags for each repo
+          fetch(`https://api.github.com/repos/${username}/${repo.name}/tags`)
+            .then(response => response.json())
+            .then(tags => {
+              if (Array.isArray(tags) && tags.length > 0) {
+                const tagsSpan = document.createElement("span");
+                tagsSpan.style.marginLeft = "1em";
+                tagsSpan.style.fontSize = "0.9em";
+                tagsSpan.style.color = "#555";
+                tagsSpan.textContent = "Tags: " + tags.map(tag => tag.name).join(", ");
+                li.appendChild(tagsSpan);
+              }
+            })
+            .catch(() => {
+              // Ignore tag fetch errors
+            });
           list.appendChild(li);
         });
       })
