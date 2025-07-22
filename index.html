@@ -38,10 +38,20 @@
     }
   </style>
 </head>
+// ...existing code...
 <body>
   <h1>GavinSWilson GitHub Projects</h1>
   <p>Below are my public repositories. If a GitHub Pages site exists, the link goes to it. Otherwise, it links to the repo itself.</p>
-  <ul id="repo-list"></ul>
+  <table id="repo-table" style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Repository</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Description</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Tags</th>
+      </tr>
+    </thead>
+    <tbody id="repo-list"></tbody>
+  </table>
 
   <script>
     const username = "GavinSWilson";
@@ -51,12 +61,16 @@
       .then(response => response.json())
       .then(repos => {
         if (!Array.isArray(repos) || repos.length === 0) {
-          list.innerHTML = "<li>No repositories found.</li>";
+          list.innerHTML = "<tr><td colspan='2'>No repositories found.</td></tr>";
           return;
         }
 
         repos.forEach(repo => {
-          const li = document.createElement("li");
+          const tr = document.createElement("tr");
+
+          // Repository column
+          const repoTd = document.createElement("td");
+          repoTd.style.padding = "8px";
           const link = document.createElement("a");
 
           if (repo.has_pages) {
@@ -67,35 +81,46 @@
             link.textContent = `${repo.name}`;
             const fallback = document.createElement("span");
             fallback.className = "fallback";
-            fallback.textContent = "(No Pages site)";
-            li.appendChild(fallback);
+            fallback.textContent = " (No Pages site)";
+            link.appendChild(fallback);
           }
-
           link.target = "_blank";
-          li.insertBefore(link, li.firstChild);
-          // Fetch tags for each repo
+          repoTd.appendChild(link);
+          tr.appendChild(repoTd);
+          
+          const descTd = document.createElement("td");
+          descTd.style.padding = "8px";
+          descTd.textContent = repo.description || "No description provided.";
+          descTd.style.fontSize = "0.9em";         
+          tr.appendChild(descTd);
+        
+          const tagsTd = document.createElement("td");
+          tagsTd.style.padding = "8px";
+          tagsTd.style.fontSize = "0.95em";
+          tagsTd.textContent = "Loading...";
+
           fetch(`https://api.github.com/repos/${username}/${repo.name}/tags`)
             .then(response => response.json())
             .then(tags => {
               if (Array.isArray(tags) && tags.length > 0) {
-                const tagsSpan = document.createElement("span");
-                tagsSpan.style.marginLeft = "1em";
-                tagsSpan.style.fontSize = "0.9em";
-                tagsSpan.style.color = "#555";
-                tagsSpan.textContent = "Tags: " + tags.map(tag => tag.name).join(", ");
-                li.appendChild(tagsSpan);
+                tagsTd.textContent = tags.map(tag => tag.name).join(", ");
+              } else {
+                tagsTd.textContent = "—";
               }
             })
             .catch(() => {
-              // Ignore tag fetch errors
+              tagsTd.textContent = "—";
             });
-          list.appendChild(li);
+
+          tr.appendChild(tagsTd);
+          list.appendChild(tr);
         });
       })
       .catch(err => {
-        list.innerHTML = "<li>Error fetching repositories.</li>";
+        list.innerHTML = "<tr><td colspan='2'>Error fetching repositories.</td></tr>";
         console.error(err);
       });
   </script>
 </body>
+
 </html>
