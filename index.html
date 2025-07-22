@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GavinSWilson Repo Pages</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 2rem;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: white;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    a {
+      text-decoration: none;
+      color: #0366d6;
+      font-weight: bold;
+    }
+    .fallback {
+      color: #888;
+      font-size: 0.9em;
+      margin-left: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>GavinSWilson GitHub Projects</h1>
+  <p>Below are my public repositories. If a GitHub Pages site exists, the link goes to it. Otherwise, it links to the repo itself.</p>
+  <ul id="repo-list"></ul>
+
+  <script>
+    const username = "GavinSWilson";
+    const list = document.getElementById("repo-list");
+
+    fetch(`https://api.github.com/users/${username}/repos`)
+      .then(response => response.json())
+      .then(repos => {
+        if (!Array.isArray(repos) || repos.length === 0) {
+          list.innerHTML = "<li>No repositories found.</li>";
+          return;
+        }
+
+        repos.forEach(repo => {
+          const li = document.createElement("li");
+          const link = document.createElement("a");
+
+          if (repo.has_pages) {
+            link.href = `https://${username}.github.io/${repo.name}/`;
+            link.textContent = `${repo.name} (GitHub Pages)`;
+          } else {
+            link.href = repo.html_url;
+            link.textContent = `${repo.name}`;
+            const fallback = document.createElement("span");
+            fallback.className = "fallback";
+            fallback.textContent = "(No Pages site)";
+            li.appendChild(fallback);
+          }
+
+          link.target = "_blank";
+          li.insertBefore(link, li.firstChild);
+          list.appendChild(li);
+        });
+      })
+      .catch(err => {
+        list.innerHTML = "<li>Error fetching repositories.</li>";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
