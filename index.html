@@ -38,16 +38,15 @@
     }
   </style>
 </head>
-// ...existing code...
 <body>
   <h1>GavinSWilson GitHub Projects</h1>
   <p>Below are my public repositories. If a GitHub Pages site exists, the link goes to it. Otherwise, it links to the repo itself.</p>
   <table id="repo-table" style="width:100%; border-collapse:collapse;">
     <thead>
       <tr>
-        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Repository</th>
-        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Description</th>
-        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Tags</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;cursor:pointer;" onclick="sortTable(0)">Repository</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;cursor:pointer;" onclick="sortTable(1)">Description</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;cursor:pointer;" onclick="sortTable(2)">Tags</th>
       </tr>
     </thead>
     <tbody id="repo-list"></tbody>
@@ -120,6 +119,46 @@
         list.innerHTML = "<tr><td colspan='2'>Error fetching repositories.</td></tr>";
         console.error(err);
       });
+
+
+      function sortTable(n) {
+      const table = document.getElementById("repo-table");
+      let switching = true;
+      let dir = "asc";
+      let switchcount = 0;
+      while (switching) {
+        switching = false;
+        const rows = table.rows;
+        for (let i = 1; i < (rows.length - 1); i++) {
+          let shouldSwitch = false;
+          let x = rows[i].getElementsByTagName("TD")[n];
+          let y = rows[i + 1].getElementsByTagName("TD")[n];
+          let xText = x ? x.textContent.trim().toLowerCase() : "";
+          let yText = y ? y.textContent.trim().toLowerCase() : "";
+          if (dir === "asc") {
+            if (xText > yText) {
+              shouldSwitch = true;
+              break;
+            }
+          } else if (dir === "desc") {
+            if (xText < yText) {
+              shouldSwitch = true;
+              break;
+            }
+          }
+        }
+        if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+          switchcount++;
+        } else {
+          if (switchcount === 0 && dir === "asc") {
+            dir = "desc";
+            switching = true;
+          }
+        }
+      }
+    }
   </script>
 </body>
 
